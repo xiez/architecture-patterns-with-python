@@ -25,3 +25,6 @@ https://pypi.org/project/black/
 
 https://www.systutorials.com/docs/linux/man/1-entr/
 
+## python hash
+
+https://hynek.me/articles/hashes-and-equality/
