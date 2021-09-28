@@ -1,10 +1,10 @@
 .PHONY: test
 
 test:
-	pytest test*.py
+	pytest .
 
 watch-tests:
-	ls *.py | entr pytest --tb=short
+	ls *.py | entr pytest --tb=short -s
 
 black:
 	ls *.py | entr black .
