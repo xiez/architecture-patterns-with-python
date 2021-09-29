@@ -1,4 +1,4 @@
-.PHONY: test
+.PHONY: test watch-tests black lock
 
 test:
 	pytest .
@@ -8,3 +8,6 @@ watch-tests:
 
 black:
 	ls *.py | entr black .
+
+lock:
+	pipenv lock --pre

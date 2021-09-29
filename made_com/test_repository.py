@@ -1,17 +1,28 @@
+from datetime import date
+
 import models
 import repository
 
+today = date.today()
+
+
 def test_repository_can_save_a_batch(session):
     batch = models.Batch("batch1", "RUSTY-SOAPDISH", 100, eta=None)
+    batch2 = models.Batch("batch1", "RUSTY-SOAPDISH", 100, eta=today)
 
     repo = repository.SqlAlchemyRepository(session)
     repo.add(batch)
+    repo.add(batch2)
     session.commit()
 
     rows = session.execute(
         'SELECT reference, sku, _purchased_quantity, eta FROM "batches"'
     )
-    assert list(rows) == [("batch1", "RUSTY-SOAPDISH", 100, None)]
+    assert list(rows) == [
+        ("batch1", "RUSTY-SOAPDISH", 100, None),
+        ("batch1", "RUSTY-SOAPDISH", 100, str(today)),
+    ]
+
 
 def insert_order_line(session):
     session.execute(
@@ -23,6 +34,7 @@ def insert_order_line(session):
         dict(orderid="order1", sku="GENERIC-SOFA"),
     )
     return orderline_id
+
 
 def insert_batch(session, batch_id):
     session.execute(
@@ -36,12 +48,14 @@ def insert_batch(session, batch_id):
     )
     return batch_id
 
+
 def insert_allocation(session, orderline_id, batch_id):
     session.execute(
         "INSERT INTO allocations (orderline_id, batch_id)"
         " VALUES (:orderline_id, :batch_id)",
         dict(orderline_id=orderline_id, batch_id=batch_id),
     )
+
 
 def test_repository_can_retrieve_a_batch_with_allocations(session):
     orderline_id = insert_order_line(session)
@@ -54,8 +68,8 @@ def test_repository_can_retrieve_a_batch_with_allocations(session):
 
     expected = models.Batch("batch1", "GENERIC-SOFA", 100, eta=None)
     assert retrieved == expected  # Batch.__eq__ only compares reference  #(3)
-    assert retrieved.sku == expected.sku  #(4)
+    assert retrieved.sku == expected.sku  # (4)
     assert retrieved._purchased_quantity == expected._purchased_quantity
-    assert retrieved._allocations == {  #(4)
+    assert retrieved._allocations == {  # (4)
         models.OrderLine("order1", "GENERIC-SOFA", 12),
-    }    
+    }

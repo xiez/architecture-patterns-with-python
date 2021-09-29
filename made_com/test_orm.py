@@ -17,6 +17,7 @@ def test_orderline_mapper_can_load_lines(session):  # (1)
     ]
     assert session.query(models.OrderLine).all() == expected
 
+
 def test_orderline_mapper_can_save_lines(session):
     rows = list(session.execute('SELECT orderid, sku, qty FROM "order_lines"'))
     assert rows == []
@@ -27,6 +28,7 @@ def test_orderline_mapper_can_save_lines(session):
 
     rows = list(session.execute('SELECT orderid, sku, qty FROM "order_lines"'))
     assert rows == [("order1", "DECORATIVE-WIDGET", 12)]
+
 
 def test_retrieving_batches(session):
     session.execute(
@@ -43,6 +45,7 @@ def test_retrieving_batches(session):
     ]
     assert session.query(models.Batch).all() == expected
 
+
 def test_saving_batches(session):
     batch = models.Batch("batch1", "sku1", 100, eta=None)
     session.add(batch)
@@ -52,6 +55,7 @@ def test_saving_batches(session):
     )
     assert list(rows) == [("batch1", "sku1", 100, None)]
 
+
 def test_saving_allocations(session):
     batch = models.Batch("batch1", "sku1", 100, eta=None)
     line = models.OrderLine("order1", "sku1", 10)
@@ -60,6 +64,7 @@ def test_saving_allocations(session):
     session.commit()
     rows = list(session.execute('SELECT orderline_id, batch_id FROM "allocations"'))
     assert rows == [(batch.id, line.id)]
+
 
 def test_retrieving_allocations(session):
     session.execute(
