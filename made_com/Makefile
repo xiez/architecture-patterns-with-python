@@ -1,4 +1,4 @@
-.PHONY: test watch-tests black lock
+.PHONY: test watch-tests black lock run
 
 test:
 	pytest .
@@ -11,3 +11,6 @@ black:
 
 lock:
 	pipenv lock --pre
+
+run:
+	flask run --port=5005

@@ -5,10 +5,13 @@ name = "pypi"
 
 [packages]
 sqlalchemy = "*"
+flask = "*"
+psycopg2 = "*"
 
 [dev-packages]
 black = "*"
 pytest = "*"
+requests = "*"
 
 [requires]
 python_version = "3.7"

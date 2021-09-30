@@ -43,6 +43,8 @@ class LocalFileSystem(AbstractFileSystem):
 
 
 def read_paths_and_hashes(root):
+    """build dict of file_hash -> file_name
+    """
     hashes = {}
     for folder, _, files in os.walk(root):
         for fn in files:
