@@ -1,5 +1,5 @@
 from domain import models
-from domain.models import OrderLine
+from domain.models import OrderLine, Batch
 from adapters.repository import AbstractRepository
 
 
@@ -18,3 +18,18 @@ def allocate(line: OrderLine, repo: AbstractRepository, session) -> str:
     batchref = models.allocate(line, batches)
     session.commit()
     return batchref
+
+
+def deallocate(line: OrderLine, repo: AbstractRepository, session) -> str:
+    batches = repo.list()
+    if not is_valid_sku(line.sku, batches):
+        raise InvalidSku(f"Invalid sku {line.sku}")
+    batchref = models.deallocate(line, batches)
+    session.commit()
+    return batchref
+
+
+def add_batch(batch: Batch, repo, session):
+    repo.add(batch)
+    session.commit()
+    return batch

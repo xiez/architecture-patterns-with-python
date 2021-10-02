@@ -4,17 +4,17 @@ test:
 	PYTHONPATH=. pytest .
 
 watch-tests:
-	PYTHONPATH=. ls *.py | entr pytest --tb=short -s
+	PYTHONPATH=. find . -name \*.py | entr pytest --tb=short -s
 
 black:
-	ls *.py | entr black .
+	find . -name \*.py | entr black .
 
 lock:
 	pipenv lock --pre
 
 run:
 	# docker-compose up -d
-	PYTHONPATH=. FLASK_APP=entrypoints/flask_app.py flask run --port=5005
+	PYTHONPATH=. FLASK_APP=entrypoints/flask_app.py FLASK_ENV=development flask run --port=5005
 
 dept:
 	brew install entr

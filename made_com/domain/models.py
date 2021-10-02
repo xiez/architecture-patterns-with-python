@@ -7,6 +7,10 @@ class OutOfStock(Exception):
     pass
 
 
+class OrderLineNotFound(Exception):
+    pass
+
+
 @dataclass(unsafe_hash=True)
 class OrderLine:
     orderid: str
@@ -41,6 +45,11 @@ class Batch:
     def can_allocate(self, line):
         return self.sku == line.sku and self.available_quantity >= line.qty
 
+    def find_allocation(self, line):
+        for e in self._allocations:
+            if line.orderid == e.orderid and line.sku == e.sku:
+                return e
+
     def __eq__(self, other):
         if not isinstance(other, Batch):
             return False
@@ -65,3 +74,17 @@ def allocate(line, batches) -> str:
         return batch.reference
     except StopIteration:
         raise OutOfStock(f"Out of stock for sku {line.sku}")
+
+
+def deallocate(line, batches) -> str:
+    find = False
+    for b in sorted(batches):
+        a_line = b.find_allocation(line)
+        if a_line:
+            b.deallocate(a_line)
+            return b.reference
+
+    if not find:
+        raise OrderLineNotFound(
+            f"order id {line.orderid} sku {line.sku} not found in batches"
+        )
