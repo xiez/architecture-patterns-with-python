@@ -1,7 +1,7 @@
 from datetime import date
 
-import models
-import repository
+from domain import models
+from adapters import repository
 
 today = date.today()
 

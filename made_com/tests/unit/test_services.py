@@ -1,8 +1,8 @@
 import pytest
-import models
 
-import services
-from repository import FakeRepository
+from domain import models
+from service_layer import services
+from adapters.repository import FakeRepository
 
 
 class FakeSession:

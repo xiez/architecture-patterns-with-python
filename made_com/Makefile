@@ -1,10 +1,10 @@
-.PHONY: test watch-tests black lock run
+.PHONY: test watch-tests black lock run dept env
 
 test:
-	pytest .
+	PYTHONPATH=. pytest .
 
 watch-tests:
-	ls *.py | entr pytest --tb=short -s
+	PYTHONPATH=. ls *.py | entr pytest --tb=short -s
 
 black:
 	ls *.py | entr black .
@@ -13,4 +13,12 @@ lock:
 	pipenv lock --pre
 
 run:
-	flask run --port=5005
+	# docker-compose up -d
+	PYTHONPATH=. FLASK_APP=entrypoints/flask_app.py flask run --port=5005
+
+dept:
+	brew install entr
+	pipenv sync --dev
+
+env:
+	pipenv shell

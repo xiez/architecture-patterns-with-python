@@ -3,10 +3,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 import config
-import models
-import orm
-import repository
-import services
+from domain import models
+from adapters import orm, repository
+from service_layer import services
 
 orm.start_mappers()
 get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
