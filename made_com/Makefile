@@ -1,4 +1,4 @@
-.PHONY: test watch-tests black lock run dept env
+.PHONY: test watch-tests black lock run dept env requirements
 
 test:
 	PYTHONPATH=. pytest .
@@ -22,3 +22,6 @@ dept:
 
 env:
 	pipenv shell
+
+requirements:
+	pipenv lock -r --dev > requirements.txt
