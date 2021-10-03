@@ -4,7 +4,7 @@ test:
 	PYTHONPATH=. pytest .
 
 watch-tests:
-	PYTHONPATH=. find . -name \*.py | entr pytest --tb=short -s
+	export PYTHONPATH=. && find . -name \*.py | entr pytest --tb=short -s
 
 black:
 	find . -name \*.py | entr black .

@@ -22,10 +22,10 @@ def add_batches_endpoint():
     session = get_session()
     repo = repository.SqlAlchemyRepository(session)
     req_j = request.json
-    batch = models.Batch(req_j["reference"], req_j["sku"], req_j["qty"], req_j["eta"])
-
-    services.add_batch(batch, repo, session)
-    return {"batchref": batch.reference}, 201
+    services.add_batch(
+        req_j["reference"], req_j["sku"], req_j["qty"], req_j["eta"], repo, session
+    )
+    return {"batchref": req_j["reference"]}, 201
 
 
 @app.route("/allocate", methods=["POST"])
@@ -33,10 +33,11 @@ def allocate_endpoint():
     session = get_session()
     repo = repository.SqlAlchemyRepository(session)
     req_j = request.json
-    line = models.OrderLine(req_j["orderid"], req_j["sku"], req_j["qty"])
 
     try:
-        batchref = services.allocate(line, repo, session)
+        batchref = services.allocate(
+            req_j["orderid"], req_j["sku"], req_j["qty"], repo, session
+        )
     except (models.OutOfStock, services.InvalidSku) as e:
         return {"message": str(e)}, 400
 
@@ -48,10 +49,11 @@ def deallocate_endpoint():
     session = get_session()
     repo = repository.SqlAlchemyRepository(session)
     req_j = request.json
-    line = models.OrderLine(req_j["orderid"], req_j["sku"], -1)
 
     try:
-        batchref = services.deallocate(line, repo, session)
+        batchref = services.deallocate(
+            req_j["orderid"], req_j["sku"], -1, repo, session
+        )
     except (models.OrderLineNotFound, services.InvalidSku) as e:
         return {"message": str(e)}, 400
 
