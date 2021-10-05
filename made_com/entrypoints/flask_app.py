@@ -1,15 +1,13 @@
+from datetime import datetime
+
 from flask import Flask, request
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
 
-import config
 from domain import models
-from adapters import orm, repository
-from service_layer import services
+from adapters import orm
+from service_layer import services, unit_of_work
 
-orm.start_mappers()
-get_session = sessionmaker(bind=create_engine(config.get_postgres_uri()))
 app = Flask(__name__)
+orm.start_mappers()
 
 
 @app.route("/", methods=["GET"])
@@ -19,25 +17,23 @@ def home():
 
 @app.route("/batches", methods=["POST"])
 def add_batches_endpoint():
-    session = get_session()
-    repo = repository.SqlAlchemyRepository(session)
+    uow = unit_of_work.SqlalchemyUnitOfWork()
     req_j = request.json
-    services.add_batch(
-        req_j["reference"], req_j["sku"], req_j["qty"], req_j["eta"], repo, session
-    )
+    if req_j["eta"] is not None:
+        eta = datetime.fromisoformat(req_j["eta"]).date()
+    else:
+        eta = None
+    services.add_batch(req_j["reference"], req_j["sku"], req_j["qty"], eta, uow)
     return {"batchref": req_j["reference"]}, 201
 
 
 @app.route("/allocate", methods=["POST"])
 def allocate_endpoint():
-    session = get_session()
-    repo = repository.SqlAlchemyRepository(session)
+    uow = unit_of_work.SqlalchemyUnitOfWork()
     req_j = request.json
 
     try:
-        batchref = services.allocate(
-            req_j["orderid"], req_j["sku"], req_j["qty"], repo, session
-        )
+        batchref = services.allocate(req_j["orderid"], req_j["sku"], req_j["qty"], uow)
     except (models.OutOfStock, services.InvalidSku) as e:
         return {"message": str(e)}, 400
 
@@ -46,14 +42,11 @@ def allocate_endpoint():
 
 @app.route("/deallocate", methods=["POST"])
 def deallocate_endpoint():
-    session = get_session()
-    repo = repository.SqlAlchemyRepository(session)
+    uow = unit_of_work.SqlalchemyUnitOfWork()
     req_j = request.json
 
     try:
-        batchref = services.deallocate(
-            req_j["orderid"], req_j["sku"], -1, repo, session
-        )
+        batchref = services.deallocate(req_j["orderid"], req_j["sku"], -1, uow)
     except (models.OrderLineNotFound, services.InvalidSku) as e:
         return {"message": str(e)}, 400
 

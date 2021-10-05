@@ -6,6 +6,10 @@ https://realpython.com/pipenv-guide/
 
 https://realpython.com/python-data-classes/
 
+## SqlAlchemy
+
+https://docs.sqlalchemy.org/en/14/orm/session_basics.html
+
 ## Book & Code
 
 ### chapter 1
@@ -45,8 +49,15 @@ http://www.peterprovost.org/blog/2012/05/02/kata-the-only-way-to-learn-tdd/
 
 - https://blog.ploeh.dk/2013/12/03/layers-onions-ports-adapters-its-all-the-same/
 
-- https://www.python.org/dev/peps/pep-0544/
+- [Protocols: Structural subtyping (static duck typing)](https://www.python.org/dev/peps/pep-0544/)
 
 - https://www.destroyallsoftware.com/screencasts/catalog/functional-core-imperative-shell
 
 - https://martinfowler.com/articles/mocksArentStubs.html
+
+- https://github.com/testdouble/contributing-tests/wiki/Don't-mock-what-you-don't-own
+
+- https://martinfowler.com/eaaCatalog/unitOfWork.html
+
+- [加上 Unit of Work，抽離Entity Framework的依賴就完美了](https://ithelp.ithome.com.tw/articles/10157700)
+

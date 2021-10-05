@@ -1,3 +1,8 @@
+"""
+https://www.cosmicpython.com/book/chapter_06_uow.html:
+
+test_orm.py was primarily a tool to help us learn SQLAlchemy, so we won’t need that long term, especially if the main things it’s doing are covered in test_repository.py.
+"""
 from datetime import date
 
 from domain import models
