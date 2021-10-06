@@ -3,25 +3,11 @@ import pytest
 import requests
 
 import config
-
-
-def random_suffix():
-    return uuid.uuid4().hex[:6]
-
-
-def random_sku(name=""):
-    return f"sku-{name}-{random_suffix()}"
-
-
-def random_batchref(name=""):
-    return f"batch-{name}-{random_suffix()}"
-
-
-def random_orderid(name=""):
-    return f"order-{name}-{random_suffix()}"
+from tests.utils import random_suffix, random_sku, random_batchref, random_orderid
 
 
 @pytest.mark.usefixtures("restart_api")
+@pytest.mark.usefixtures("postgres_db")
 def test_happy_path_returns_201_and_allocated_batch():
     sku, othersku = random_sku(), random_sku("other")
     earlybatch = random_batchref(1)
@@ -41,6 +27,7 @@ def test_happy_path_returns_201_and_allocated_batch():
 
 
 @pytest.mark.usefixtures("restart_api")
+@pytest.mark.usefixtures("postgres_db")
 def test_unhappy_path_returns_400_and_error_message():
     unknown_sku, orderid = random_sku(), random_orderid()
     data = {"orderid": orderid, "sku": unknown_sku, "qty": 20}

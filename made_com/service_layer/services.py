@@ -3,7 +3,6 @@ from datetime import date
 
 from domain import models
 from domain.models import OrderLine, Batch
-from adapters.repository import AbstractRepository
 from service_layer.unit_of_work import AbstractUnitOfWork
 
 
@@ -22,10 +21,10 @@ def is_valid_sku(sku, batches):
 def allocate(orderid: str, sku: str, qty: int, uow: AbstractUnitOfWork) -> str:
     line = OrderLine(orderid, sku, qty)
     with uow:
-        batches = uow.batches.list()
-        if not is_valid_sku(line.sku, batches):
+        product = uow.products.get(sku)
+        if product is None:
             raise InvalidSku(f"Invalid sku {line.sku}")
-        batchref = models.allocate(line, batches)
+        batchref = product.allocate(line)
         uow.commit()
     return batchref
 
@@ -33,11 +32,11 @@ def allocate(orderid: str, sku: str, qty: int, uow: AbstractUnitOfWork) -> str:
 def deallocate(orderid: str, sku: str, qty: int, uow: AbstractUnitOfWork) -> str:
     line = OrderLine(orderid, sku, qty)
     with uow:
-        batches = uow.batches.list()
-        if not is_valid_sku(line.sku, batches):
+        product = uow.products.get(sku)
+        if product is None:
             raise InvalidSku(f"Invalid sku {line.sku}")
         try:
-            batchref = models.deallocate(line, batches)
+            batchref = product.deallocate(line)
             uow.commit()
             return batchref
         except models.OrderLineNotFound as e:
@@ -48,5 +47,9 @@ def add_batch(
     ref: str, sku: str, qty: int, eta: Optional[date], uow: AbstractUnitOfWork
 ) -> None:
     with uow:
-        uow.batches.add(Batch(ref, sku, qty, eta))
+        product = uow.products.get(sku)
+        if product is None:
+            product = models.Product(sku, batches=[])
+            uow.products.add(product)
+        product.batches.append(Batch(ref, sku, qty, eta))
         uow.commit()

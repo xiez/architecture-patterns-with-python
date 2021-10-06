@@ -8,13 +8,13 @@ from adapters import repository
 
 
 class AbstractUnitOfWork(abc.ABC):
-    batches: repository.AbstractRepository
+    products: repository.AbstractProductRepository
 
     def __exit__(self, *args):
         self.rollback()
 
     def __enter__(self):
-        pass
+        return self
 
     def __exit__(self, *args):
         pass
@@ -28,7 +28,12 @@ class AbstractUnitOfWork(abc.ABC):
         ...
 
 
-DEFAULT_SESSION_FACTORY = sessionmaker(bind=create_engine(config.get_postgres_uri()))
+DEFAULT_SESSION_FACTORY = sessionmaker(
+    bind=create_engine(
+        config.get_postgres_uri(),
+        isolation_level="REPEATABLE READ",
+    )
+)
 
 
 class SqlalchemyUnitOfWork(AbstractUnitOfWork):
@@ -37,7 +42,7 @@ class SqlalchemyUnitOfWork(AbstractUnitOfWork):
 
     def __enter__(self):
         self.session = self.session_factory()  # type: Session
-        self.batches = repository.SqlAlchemyRepository(self.session)
+        self.products = repository.SqlAlchemyRepository(self.session)
         return super().__enter__()
 
     def __exit__(self, *args):
@@ -53,7 +58,7 @@ class SqlalchemyUnitOfWork(AbstractUnitOfWork):
 
 class FakeUnitOfWork(AbstractUnitOfWork):
     def __init__(self):
-        self.batches = repository.FakeRepository([])
+        self.products = repository.FakeRepository([])
         self.committed = False
 
     def commit(self):

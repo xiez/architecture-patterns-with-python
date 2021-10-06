@@ -10,6 +10,12 @@ https://realpython.com/python-data-classes/
 
 https://docs.sqlalchemy.org/en/14/orm/session_basics.html
 
+## Postgresql
+
+https://www.postgresql.org/docs/12/transaction-iso.html#XACT-REPEATABLE-READ
+
+https://www.2ndquadrant.com/en/blog/postgresql-anti-patterns-read-modify-write-cycles/
+
 ## Book & Code
 
 ### chapter 1
@@ -61,3 +67,4 @@ http://www.peterprovost.org/blog/2012/05/02/kata-the-only-way-to-learn-tdd/
 
 - [加上 Unit of Work，抽離Entity Framework的依賴就完美了](https://ithelp.ithome.com.tw/articles/10157700)
 
+- https://martinfowler.com/bliki/BoundedContext.html

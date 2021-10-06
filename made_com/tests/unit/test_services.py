@@ -19,7 +19,8 @@ class FakeSession:
 def test_add_batch():
     uow = unit_of_work.FakeUnitOfWork()
     services.add_batch("b1", "CRUNCHY-ARMCHAIR", 100, None, uow)
-    assert uow.batches.get("b1") is not None
+
+    assert uow.products.get("CRUNCHY-ARMCHAIR") is not None
     assert uow.committed
 
 
@@ -44,12 +45,12 @@ def test_deallocate_decrements_available_quantity():
     services.add_batch("b1", "BLUE-PLINTH", 100, None, uow)
 
     services.allocate("o1", "BLUE-PLINTH", 10, uow)
-    batch = uow.batches.get(reference="b1")
-    assert batch.available_quantity == 90
+    p = uow.products.get("BLUE-PLINTH")
+    assert p.batches[0].available_quantity == 90
 
     batch_ref = services.deallocate("o1", "BLUE-PLINTH", -1, uow)
     assert batch_ref == "b1"
-    assert batch.available_quantity == 100
+    assert p.batches[0].available_quantity == 100
 
 
 @pytest.mark.skip(reason="what means correct quantity??")
@@ -74,5 +75,8 @@ def test_prefers_warehouse_batches_to_shipments():
     services.add_batch("shipment-batch", "RETRO-CLOCK", 100, tomorrow, uow)
 
     services.allocate("ordf", "RETRO-CLOCK", 10, uow)
-    assert uow.batches.get("in-stock-batch").available_quantity == 90
-    assert uow.batches.get("shipment-batch").available_quantity == 100
+    for b in uow.products.get("RETRO-CLOCK").batches:
+        if b.reference == "shipment-batch":
+            assert b.available_quantity == 100
+        if b.reference == "in-stock-batch":
+            assert b.available_quantity == 90

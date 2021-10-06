@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Set
+from typing import Optional, Set, List
 from datetime import date
 
 
@@ -65,6 +65,36 @@ class Batch:
         if other.eta is None:
             return True
         return self.eta > other.eta
+
+
+class Product:
+    def __init__(self, sku: str, batches: List[Batch], version_number: int = 0):
+        self.sku = sku
+        self.batches = batches
+        self.version_number = version_number
+
+    def allocate(self, line: OrderLine) -> str:
+        try:
+            batch = next(b for b in sorted(self.batches) if b.can_allocate(line))
+            batch.allocate(line)
+            self.version_number += 1
+            return batch.reference
+        except StopIteration:
+            raise OutOfStock(f"Out of stock for sku {line.sku}")
+
+    def deallocate(self, line) -> str:
+        find = False
+        for b in sorted(self.batches):
+            a_line = b.find_allocation(line)
+            if a_line:
+                b.deallocate(a_line)
+                self.version_number += 1
+                return b.reference
+
+        if not find:
+            raise OrderLineNotFound(
+                f"order id {line.orderid} sku {line.sku} not found in batches"
+            )
 
 
 def allocate(line, batches) -> str:

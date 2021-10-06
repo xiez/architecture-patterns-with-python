@@ -3,39 +3,39 @@ import abc
 from domain import models
 
 
-class AbstractRepository(abc.ABC):
+class AbstractProductRepository(abc.ABC):
     @abc.abstractmethod
-    def add(self, batch):
+    def add(self, product: models.Product):
         ...
 
     @abc.abstractmethod
-    def get(self, reference):
+    def get(self, sku: str) -> models.Product:
         ...
 
 
-class SqlAlchemyRepository(AbstractRepository):
+class SqlAlchemyRepository(AbstractProductRepository):
     def __init__(self, session):
         self.session = session
 
-    def add(self, batch):
-        self.session.add(batch)
+    def add(self, product):
+        self.session.add(product)
 
-    def get(self, reference):
-        return self.session.query(models.Batch).filter_by(reference=reference).one()
-
-    def list(self):
-        return self.session.query(models.Batch).all()
-
-
-class FakeRepository(AbstractRepository):
-    def __init__(self, batches):
-        self._batches = set(batches)
-
-    def add(self, batch):
-        self._batches.add(batch)
-
-    def get(self, reference):
-        return next(b for b in self._batches if b.reference == reference)
+    def get(self, sku):
+        return self.session.query(models.Product).filter_by(sku=sku).first()
 
     def list(self):
-        return list(self._batches)
+        return self.session.query(models.Product).all()
+
+
+class FakeRepository(AbstractProductRepository):
+    def __init__(self, products):
+        self._products = set(products)
+
+    def add(self, product):
+        self._products.add(product)
+
+    def get(self, sku):
+        return next((p for p in self._products if p.sku == sku), None)
+
+    def list(self):
+        return list(self._products)
