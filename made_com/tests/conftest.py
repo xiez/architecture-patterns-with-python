@@ -45,7 +45,7 @@ def wait_for_postgres_to_come_up(engine):
 
 @pytest.fixture(scope="session")
 def postgres_db():
-    engine = create_engine(config.get_postgres_uri())
+    engine = create_engine(config.get_mysql_uri())
     wait_for_postgres_to_come_up(engine)
     metadata.create_all(engine)
     return engine
